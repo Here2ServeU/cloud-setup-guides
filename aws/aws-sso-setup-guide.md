@@ -2,7 +2,9 @@
 
 Here is the step-by-step guide to setting up AWS Single Sign-On (SSO), now called **IAM Identity Center**, and connecting it to your CLI.
 
-### Phase 1: Create the User (IAM Identity Center)1. Log in to your AWS Management Console as the root user (or an admin).
+### Phase 1: Create the User (IAM Identity Center)
+
+1. Log in to your AWS Management Console as the root user (or an admin).
 2. Search for **IAM Identity Center** in the top search bar and open it.
 3. *Note: If you haven't enabled it yet, click "Enable" (choose "Organization instance" if asked).*
 4. In the left sidebar, click **Users**.
@@ -19,7 +21,9 @@ Here is the step-by-step guide to setting up AWS Single Sign-On (SSO), now calle
 8. **Review:** Click **Add user**.
 9. **Important:** A popup will appear with the **One-time password** and the **AWS access portal URL**. Copy these down; you will need them immediately to set your permanent password.
 
-### Phase 2: Create a Permission SetBefore assigning the user to an account, you need to define *what* they can do (e.g., Administrator vs. Read Only).
+### Phase 2: Create a Permission Set
+
+Before assigning the user to an account, you need to define *what* they can do (e.g., Administrator vs. Read Only).
 
 1. In the IAM Identity Center sidebar, click **Permission sets**.
 2. Click **Create permission set**.
@@ -29,7 +33,9 @@ Here is the step-by-step guide to setting up AWS Single Sign-On (SSO), now calle
 6. **Session duration:** Change this from "1 hour" to **12 hours** (saves you from logging in constantly).
 7. Click **Next**, then **Create**.
 
-### Phase 3: Assign User to AccountNow you link the **User** + **Permission Set** + **Account**.
+### Phase 3: Assign User to Account
+
+Now you link the **User** + **Permission Set** + **Account**.
 
 1. In the sidebar, click **AWS accounts**.
 2. Check the box next to your AWS Account (e.g., `7197-3587-4967`).
@@ -38,7 +44,9 @@ Here is the step-by-step guide to setting up AWS Single Sign-On (SSO), now calle
 5. **Step 2:** Select the **AdministratorAccess** permission set you just created, and click **Next**.
 6. **Step 3:** Click **Submit**.
 
-### Phase 4: Configure Local CLINow that the cloud side is ready, connect your terminal.
+### Phase 4: Configure Local CLI
+
+Now that the cloud side is ready, connect your terminal.
 
 1. **Get your Start URL:**
 * Go to the **Dashboard** in IAM Identity Center.
@@ -75,7 +83,9 @@ aws configure sso
 
 
 
-### Phase 5: VerificationTo verify everything is working, run this command using your new profile:
+### Phase 5: Verification 
+
+To verify everything is working, run this command using your new profile:
 
 ```bash
 aws sts get-caller-identity --profile autumn-vest
