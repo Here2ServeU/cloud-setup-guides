@@ -1,6 +1,6 @@
 # Setting Up Secrets on GitHub To Deploy to AWS
 
-### Option 1: The "Hacker" Way (Fastest)
+### The "Hacker" Way (Fastest)
 
 Since you already configured your CLI with the `t2s-cloud` profile, you can create the Robot user and get the keys in 3 commands without leaving your terminal.
 
@@ -31,7 +31,7 @@ aws iam create-access-key --user-name t2s-github-bot --profile t2s-cloud
 
 ---
 
-### Option 2: The Console Way (Visual)
+### The Console Way (Visual)
 
 If you prefer clicking through the website:
 
@@ -59,7 +59,7 @@ If you prefer clicking through the website:
 
 ---
 
-### Step 3: Add to GitHub (From your Screenshot)
+### Add to GitHub (From your Screenshot)
 
 Now that you have the keys (starts with `AKIA...` and `wJalr...`):
 
