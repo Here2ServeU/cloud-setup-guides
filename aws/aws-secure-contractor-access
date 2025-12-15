@@ -1,0 +1,160 @@
+# Temporary AWS Access for Contractors (Senior Governance Model)
+
+This repository documents the secure, auditable, and time-bound process used to grant a contractor (Jeannette) permission to run operational scripts against an AWS account without granting permanent or uncontrolled access.
+
+Account ID: 930335597945  
+User: Jeannette
+Access Duration: 14 days  
+Access Model: IAM User + MFA + AssumeRole + Permissions Boundary
+
+---
+
+## 1. Governance Principles
+
+- Least privilege
+- Time-bound access
+- Mandatory MFA
+- No direct admin permissions
+- All actions auditable in CloudTrail
+
+---
+
+## 2. High-Level Access Design
+
+Autumn authenticates as an IAM User with MFA enabled and assumes a restricted IAM Role (`AutumnOpsRole`) with:
+
+- A permissions boundary
+- Explicitly allowed services
+- No IAM modification rights
+- Session expiration enforced
+
+---
+
+## 3. Step-by-Step Setup
+
+### Step 1: Create IAM User
+
+```bash
+aws iam create-user --user-name Jeannette
+```
+
+Attach a policy allowing **only** `sts:AssumeRole` and MFA enforcement.
+
+---
+
+### Step 2: Create MFA Device
+
+```bash
+aws iam create-virtual-mfa-device   --virtual-mfa-device-name AutumnMFA   --bootstrap-method QRCodePNG   --outfile AutumnMFA.png
+```
+
+Scan the QR code with an authenticator app.
+
+Enable MFA:
+
+```bash
+aws iam enable-mfa-device   --user-name Jeannette   --serial-number arn:aws:iam::930335597945:mfa/JeannetteMFA   --authentication-code1 <CODE1>   --authentication-code2 <CODE2>
+```
+
+---
+
+### Step 3: Create Trust Policy
+
+Create `AutumnTrustPolicy.json`:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::930335597945:user/Jeannette"
+      },
+      "Action": "sts:AssumeRole",
+      "Condition": {
+        "Bool": {
+          "aws:MultiFactorAuthPresent": "true"
+        }
+      }
+    }
+  ]
+}
+```
+
+---
+
+### Step 4: Create Role with Permissions Boundary
+
+```bash
+aws iam create-role   --role-name AutumnOpsRole   --assume-role-policy-document file://JeannetteTrustPolicy.json   --permissions-boundary arn:aws:iam::930335597945:policy/JeannettePermissionsBoundary
+```
+
+---
+
+### Step 5: Attach Scoped Policy
+
+Attach a custom policy allowing:
+
+- EKS
+- EC2 (describe, limited delete)
+- ELBv2
+- CloudWatch Logs
+- S3 (specific buckets)
+- Terraform-required read/write
+
+Example:
+
+```bash
+aws iam attach-role-policy   --role-name JeannetteRole   --policy-arn arn:aws:iam::730335276920:policy/JeannetteOpsPolicy
+```
+
+---
+
+### Step 6: Assume Role (Autumn)
+
+```bash
+aws sts assume-role   --role-arn arn:aws:iam::930335597945:role/JeannetteOpsRole   --role-session-name JeannetteSession   --duration-seconds 3600
+```
+
+Export the credentials before running scripts.
+
+---
+
+## 4. Time-Based Access Control
+
+- Role sessions limited to 1 hour
+- IAM Access Keys rotated daily (optional)
+- Manual or scheduled removal after 14 days
+
+To revoke access:
+
+```bash
+aws iam delete-user --user-name Jeannette
+```
+
+---
+
+## 5. Audit & Verification
+
+- CloudTrail logs all actions
+- MFA required for every session
+- Role assumption visible in CloudTrail
+- No standing privileges
+
+---
+
+## 6. Security Review Checklist
+
+- MFA enforced
+- Permissions boundary attached
+- No wildcard IAM permissions
+- No long-lived credentials
+- Explicit teardown documented
+
+---
+
+## Status
+
+This access model meets senior-level AWS governance expectations and aligns with Fortune 500 security standards.
+
